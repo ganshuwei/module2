@@ -26,15 +26,14 @@
             }
         ?>
         <hr>
-        <h3> Current Files </h3>
+        <h3> Private Files </h3>
         <?php
-            session_start();
             $username = $_SESSION['current_user'];
             $dir = sprintf("/srv/uploads/%s/", $username);
             $files = array_diff(scandir($dir), array('.', '..')); 
             foreach($files as $filename) {
                 $mypublicpath=sprintf("/srv/uploads/public/%s", $filename);
-                if(file_exists($mypublicpath)){
+                if(!file_exists($mypublicpath)){
                     echo "<form action='handle_file.php' method='POST'>
                     <input type='text' value=$filename name='filename' readonly/>
                     <input type='submit' value='Open' name='open' />

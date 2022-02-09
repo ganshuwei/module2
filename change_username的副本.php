@@ -26,35 +26,26 @@ if( !preg_match('/^[\w_\.\-]+$/', $new_name) ){
     file_put_contents ("/srv/users.txt", $new_name."\n", FILE_APPEND);
 
     // delete original directory and its username in users.txt
-    $users = fopen("/srv/users.txt", "r");
     $users = file_get_contents("/srv/users.txt");
     $users = str_replace($username."\n", '', $users);
     file_put_contents("/srv/users.txt", $users);
-    fclose($users);
 
-    copy_files($dir, $new_dir);
+    // copy files to new dirctory
+    $files = array_diff(scandir($dir), array('.', '..'));
+    foreach($files as $filename){
+        $current_path=sprintf("/srv/uploads/%s/%s", $username, $filename);
+        $destination_path=sprintf("/srv/uploads/%s/%s", $new_name, $filename);
+        rename($current_path,$destination_path);
+        unlink($current_path);
+    }
+    rmdir($dir);
 
-    session_start();
     $_SESSION['current_user'] = $new_name;
     header("Location: login_success.php");
     exit;
 }
 
 
-//function used from https://paulund.co.uk/php-delete-directory-and-files-in-directory
-function copy_files($dir, $new_dir) {
-    if(is_dir($dir)){
-        $files = glob( $dir. '*', GLOB_MARK );
-            
-        foreach( $files as $file ){
-
-            copy($dir.$file, $new_dir.$file); 
-            unlink($dir.$file);     
-
-        }
-        rmdir($dir);
-    }
-}
 
 ?>
 </body>
